@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* темна база — глибокий наві з логотипу */
+  --color-graphite: #0a1020;
+  --color-graphite-soft: #111b30;
+
+  /* світлі поверхні */
+  --color-paper: #f1f2f4;
+  --color-paper-deep: #e2e4e9;
+
+  --color-ink: #0a1020;
+  --color-ink-soft: #1b2740;
+  --color-ink-line: #cdd1da;
+  --color-bone: #f5f7fa;
+
+  /* акцент — червоно-оранжевий із логотипу */
+  --color-accent: #e8452a;
+  --color-accent-soft: #ff6a45;
+
+  --color-muted: #6b7280;
+
+  --font-display: var(--font-display-src), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-sans-src), system-ui, sans-serif;
+
+  --radius-xs: 2px;
+
+  --animate-ticker: ticker 38s linear infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-graphite);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 84rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* дрібні технічні підписи */
+@utility label-caps {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* заголовки: стиснений курсив у дусі моторспорту */
+@utility display-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: italic;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* зрізаний кут — «технічна» форма замість закруглень */
+@utility clip-notch {
+  clip-path: polygon(0.75rem 0, 100% 0, 100% calc(100% - 0.75rem), calc(100% - 0.75rem) 100%, 0 100%, 0 0.75rem);
+}
+
+/* діагональна штриховка для акцентних смуг */
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    115deg,
+    var(--color-accent) 0 0.35rem,
+    transparent 0.35rem 0.8rem
+  );
 }

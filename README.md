@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# usautorv
 
-## Getting Started
+Квіз-лендінг US Auto Rivne — пригін авто з аукціонів США під ключ.
+Next.js (App Router, Turbopack) + Tailwind v4 + Neon Postgres.
 
-First, run the development server:
+## Запуск
 
 ```bash
+npm install
+cp .env.example .env.local   # впиши DATABASE_URL з Neon і ADMIN_PASSWORD
+npm run db:migrate           # створює таблицю leads
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Лендінг — `/`, панель заявок для клієнта — `/admin`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Що де лежить
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Файл | Для чого |
+|---|---|
+| `src/lib/site.ts` | назва, телефон, email, соцмережі |
+| `src/lib/media.ts` | усі картинки сайту (шляхи + підказки розмірів) |
+| `src/lib/quiz-config.ts` | питання та варіанти відповідей квізу |
+| `src/app/admin/` | панель заявок (вхід за паролем, фільтри, таблиця) |
+| `src/components/quiz/quiz-modal.tsx` | сама модалка квізу і форма заявки |
+| `src/app/globals.css` | кольори, шрифти, дизайн-токени |
+| `public/assets/` | папка для ваших зображень (див. README всередині) |
 
-## Learn More
+### Картинки
 
-To learn more about Next.js, take a look at the following resources:
+Поки в `media.ts` стоїть `src: null`, на місці фото видно плейсхолдер з
+підказкою розміру. Щоб вставити своє: кинути файл у `public/assets/` і
+вписати шлях, напр. `src: "/assets/hero.jpg"`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Питання квізу
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Кроки описані масивом у `src/lib/quiz-config.ts`. Можна додавати, видаляти й
+змінювати порядок — прогрес-бар і форма підхоплять зміни автоматично.
+`layout: "cards"` — плитки з іконками, `layout: "compact"` — прості варіанти.
 
-## Deploy on Vercel
+## База даних
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Таблиця `leads`: контакти, тип заявки (`quiz` / `callback`), відповіді квізу в
+`jsonb`, UTM-мітки та URL сторінки.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run db:migrate   # ідемпотентно, можна запускати повторно
+```
+
+## Панель заявок `/admin`
+
+Вхід за паролем із `ADMIN_PASSWORD` (.env.local). Сесія зберігається в
+httpOnly-cookie на 12 годин, сторінка закрита від індексації.
+
+Що в панелі:
+
+- картки зі статистикою: сьогодні, за 7 днів, усього, квіз / дзвінок;
+- фільтри: період, тип заявки, пошук за ім’ям, телефоном і коментарем;
+- сортування: спочатку нові / старі, за ім’ям, за типом (у селекті або
+  кліком на заголовок стовпця);
+- заявки за сьогодні підсвічені та мають позначку «Сьогодні»;
+- відповіді квізу, коментар і UTM-джерело — у кожному рядку;
+- пагінація по 25 заявок і експорт CSV з урахуванням фільтрів.
+
+Пароль змінюється тільки в `.env.local` (після зміни — перезапуск сервера).
+
+## API
+
+| Метод | Шлях | Опис |
+|---|---|---|
+| GET | `/api/health` | перевірка застосунку |
+| GET | `/api/db` | перевірка з'єднання з Neon |
+| POST | `/api/leads` | створення заявки (валідація імені та телефону) |
+| GET | `/api/leads` | останні 50 заявок, потрібен header `x-admin-token` |
+| GET | `/api/leads/export` | CSV-експорт, потрібна сесія адмінки |
+
+Приклад читання заявок:
+
+```bash
+curl -H "x-admin-token: $ADMIN_TOKEN" http://localhost:3000/api/leads
+```
