@@ -1,7 +1,33 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { insertLead, listLeads, parseLeadInput } from "@/lib/leads";
+import { insertLead, listLeads } from "@/lib/leads";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { isSameOriginRequest } from "@/lib/request-security";
+import { parseLeadInput } from "@/lib/validation/parse-lead";
 
 export async function POST(request: NextRequest) {
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json(
+      { ok: false, message: "Заборонений запит" },
+      { status: 403 },
+    );
+  }
+
+  const ip = getClientIp(request);
+  const limited = rateLimit(`lead:${ip}`, { limit: 8, windowMs: 60_000 });
+
+  if (!limited.ok) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Забагато спроб. Спробуйте пізніше.",
+      },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+
   let body: unknown;
 
   try {

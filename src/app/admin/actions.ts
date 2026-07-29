@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { signIn, signOut } from "@/lib/admin-auth";
+import { zodFirstError } from "@/lib/validation/errors";
+import { adminPasswordSchema } from "@/lib/validation/schemas";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -9,16 +11,15 @@ export async function login(
   _state: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const password = String(formData.get("password") ?? "");
+  const parsed = adminPasswordSchema.safeParse(formData.get("password"));
 
-  if (!password) {
-    return { error: "Введіть пароль" };
+  if (!parsed.success) {
+    return { error: zodFirstError(parsed.error) };
   }
 
-  const ok = await signIn(password);
+  const ok = await signIn(parsed.data);
 
   if (!ok) {
-    // невелика затримка проти перебору пароля
     await new Promise((resolve) => setTimeout(resolve, 800));
     return { error: "Невірний пароль" };
   }

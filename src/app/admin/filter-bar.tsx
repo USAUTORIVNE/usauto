@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   PERIOD_OPTIONS,
   SORT_OPTIONS,
-  TYPE_OPTIONS,
   type LeadFilters,
 } from "@/lib/leads";
 
@@ -32,7 +31,6 @@ export function FilterBar({ filters }: { filters: LeadFilters }) {
 
   const hasFilters =
     filters.search !== "" ||
-    filters.type !== "all" ||
     filters.period !== "all" ||
     filters.sort !== "new";
 
@@ -75,19 +73,6 @@ export function FilterBar({ filters }: { filters: LeadFilters }) {
         aria-label="Період"
       >
         {Object.entries(PERIOD_OPTIONS).map(([value, option]) => (
-          <option key={value} value={value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={filters.type}
-        onChange={(event) => update({ type: event.target.value })}
-        className={selectClass}
-        aria-label="Тип заявки"
-      >
-        {Object.entries(TYPE_OPTIONS).map(([value, option]) => (
           <option key={value} value={value}>
             {option.label}
           </option>

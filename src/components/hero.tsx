@@ -28,16 +28,14 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      <div className="container-page relative grid gap-16 pt-14 pb-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:pt-20">
+      <div className="container-page relative grid gap-10 pt-10 pb-12 sm:gap-12 sm:pt-12 sm:pb-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:pt-16 lg:pb-14">
         <div className="flex flex-col justify-center">
-          <div className="flex items-center gap-3">
-            <span className="hatch h-3 w-14 -skew-x-12" aria-hidden="true" />
-            <p className="label-caps text-accent-soft">
-              США → {site.city} · пригін під ключ
-            </p>
+          <div className="flex items-center gap-2.5">
+            <span className="hatch h-2.5 w-12 -skew-x-12" aria-hidden="true" />
+            <p className="label-caps text-accent-soft">Пригін під ключ</p>
           </div>
 
-          <h1 className="display-title mt-7 text-[3.25rem] sm:text-7xl lg:text-[5.75rem]">
+          <h1 className="display-title mt-5 text-[2.875rem] leading-[0.92] sm:mt-6 sm:text-[4rem] lg:text-[5.125rem]">
             Ваше авто
             <br />
             з США —
@@ -45,70 +43,68 @@ export function Hero() {
             <span className="text-accent">наша турбота</span>
           </h1>
 
-          <p className="mt-8 max-w-xl text-[1.0625rem] leading-relaxed text-bone/65">
+          <p className="mt-6 max-w-xl text-[0.9375rem] leading-relaxed text-bone/65 sm:mt-7 sm:text-base">
             Викуповуємо на аукціонах Copart та IAAI, перевіряємо історію до ставки,
             веземо, розмитнюємо й ставимо на облік. Ціну «під ключ» фіксуємо до
             купівлі — без доплат у процесі.
           </p>
 
-          <ul className="mt-9 grid gap-x-8 gap-y-4 sm:grid-cols-3">
+          <ul className="mt-7 grid gap-x-6 gap-y-3 sm:mt-8 sm:grid-cols-3 sm:gap-x-8">
             {facts.map((fact) => (
-              <li key={fact.label} className="border-t-2 border-accent pt-3">
-                <p className="font-display text-4xl font-extrabold italic tabular-nums">
+              <li key={fact.label} className="border-t-2 border-accent pt-2.5">
+                <p className="font-display text-[2rem] font-extrabold italic tabular-nums sm:text-3xl">
                   {fact.value}
                 </p>
-                <p className="mt-1.5 text-xs leading-snug text-bone/55">{fact.label}</p>
+                <p className="mt-1 text-[0.6875rem] leading-snug text-bone/55 sm:text-xs">
+                  {fact.label}
+                </p>
               </li>
             ))}
           </ul>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <QuizButton variant="accent">Підібрати авто</QuizButton>
-            <QuizButton mode="callback" variant="outlineDark">
+          <div className="mt-8 flex flex-col gap-2.5 sm:mt-9 sm:flex-row sm:items-center sm:gap-3">
+            <QuizButton variant="accent" className="px-7 py-3.5">
+              Підібрати авто
+            </QuizButton>
+            <QuizButton mode="callback" variant="outlineDark" className="px-7 py-3.5">
               Замовити дзвінок
             </QuizButton>
           </div>
 
           <a
             href={site.phoneHref}
-            className="mt-8 inline-flex w-fit items-center gap-3 text-bone/70 transition-colors duration-300 hover:text-accent-soft"
+            className="mt-6 inline-flex w-fit items-center gap-2.5 text-bone/70 transition-colors duration-300 hover:text-accent-soft sm:mt-7"
           >
             <span className="label-caps text-bone/40">Телефон</span>
-            <span className="font-display text-2xl font-bold italic tabular-nums">
+            <span className="font-display text-xl font-bold italic tabular-nums sm:text-2xl">
               {site.phone}
             </span>
           </a>
         </div>
 
-        <div className="relative">
+        <div className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none">
           <ImageSlot
             slot={media.hero}
-            className="aspect-4/5 w-full border border-bone/12"
-            sizes="(min-width: 1024px) 46vw, 100vw"
+            className="aspect-4/5 w-full"
+            sizes="(min-width: 1024px) 46vw, 88vw"
             priority
             tone="dark"
+            fit="contain"
           />
 
-          <div className="absolute -top-3 -left-3 hidden size-16 border-t-4 border-l-4 border-accent lg:block" />
+          <div className="absolute -top-2.5 -left-2.5 hidden size-14 border-t-4 border-l-4 border-accent lg:block" />
 
-          <ImageSlot
-            slot={media.heroSecondary}
-            className="absolute -bottom-8 -left-8 hidden size-44 border-4 border-graphite lg:block"
-            sizes="176px"
-            tone="dark"
-          />
-
-          <p className="label-caps absolute right-0 -bottom-8 text-bone/35">
+          <p className="label-caps absolute right-0 -bottom-6 text-bone/35 sm:-bottom-7">
             Комплексні послуги під ключ
           </p>
         </div>
       </div>
 
       {/* біжуча смуга з етапами пригону */}
-      <div className="flex overflow-hidden border-y border-bone/12 bg-graphite-soft py-3.5 select-none">
-        <div className="flex shrink-0 animate-ticker items-center gap-8 pr-8 motion-reduce:animate-none">
+      <div className="flex overflow-hidden border-y border-bone/12 bg-graphite-soft py-3 select-none">
+        <div className="flex shrink-0 animate-ticker items-center gap-7 pr-7 motion-reduce:animate-none">
           {[...route, ...route, ...route, ...route].map((item, index) => (
-            <span key={`${item}-${index}`} className="flex items-center gap-8">
+            <span key={`${item}-${index}`} className="flex items-center gap-7">
               <span className="label-caps whitespace-nowrap text-bone/55">{item}</span>
               <span className="size-1.5 shrink-0 rotate-45 bg-accent" aria-hidden="true" />
             </span>

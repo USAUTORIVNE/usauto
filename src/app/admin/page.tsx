@@ -10,7 +10,6 @@ import {
   leadStats,
   parseFilters,
   queryLeads,
-  TYPE_OPTIONS,
   type LeadFilters,
   type LeadStats,
 } from "@/lib/leads";
@@ -72,12 +71,6 @@ export default async function AdminPage({
         </div>
 
         <div className="flex items-center gap-2">
-          <a
-            href={`/api/leads/export${buildAdminHref(filters).replace("/admin", "")}`}
-            className="label-caps rounded-xs border border-ink/20 px-5 py-3 transition-colors duration-300 hover:bg-ink hover:text-bone"
-          >
-            Експорт CSV
-          </a>
           <form action={logout}>
             <button
               type="submit"
@@ -89,22 +82,17 @@ export default async function AdminPage({
         </div>
       </header>
 
-      <dl className="grid gap-px bg-ink-line sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid gap-px bg-ink-line sm:grid-cols-3">
         <StatCard label="Сьогодні" value={stats.today} accent />
         <StatCard label="За 7 днів" value={stats.week} />
         <StatCard label="Усього заявок" value={stats.total} />
-        <StatCard
-          label="Квіз / дзвінок"
-          value={`${stats.quiz} / ${stats.callback}`}
-        />
       </dl>
 
       <FilterBar filters={filters} />
 
-      {filters.period !== "all" || filters.type !== "all" || filters.search ? (
+      {filters.period !== "all" || filters.search ? (
         <p className="text-sm text-muted">
-          Фільтр: {PERIOD_OPTIONS[filters.period].label.toLowerCase()},{" "}
-          {TYPE_OPTIONS[filters.type].label.toLowerCase()}
+          Фільтр: {PERIOD_OPTIONS[filters.period].label.toLowerCase()}
           {filters.search ? `, пошук «${filters.search}»` : ""}
         </p>
       ) : null}
@@ -154,8 +142,6 @@ const EMPTY_STATS: LeadStats = {
   total: 0,
   today: 0,
   week: 0,
-  quiz: 0,
-  callback: 0,
   lastCreatedAt: null,
 };
 

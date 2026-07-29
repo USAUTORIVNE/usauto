@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import { isAdminAuthed } from "@/lib/admin-auth";
 import { getSql } from "@/lib/db";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production" && !(await isAdminAuthed())) {
+    return NextResponse.json({ ok: false }, { status: 404 });
+  }
+
   try {
     const sql = getSql();
     const result = await sql`select now() as now`;
@@ -10,15 +15,7 @@ export async function GET() {
       status: "ok",
       now: result[0]?.now ?? null,
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-
-    return NextResponse.json(
-      {
-        status: "error",
-        message,
-      },
-      { status: 500 },
-    );
+  } catch {
+    return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }

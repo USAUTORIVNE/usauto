@@ -7,12 +7,14 @@ export function ImageSlot({
   sizes = "100vw",
   priority = false,
   tone = "light",
+  fit = "cover",
 }: {
   slot: MediaSlot;
   className?: string;
   sizes?: string;
   priority?: boolean;
   tone?: "light" | "dark";
+  fit?: "cover" | "contain";
 }) {
   const isDark = tone === "dark";
 
@@ -25,7 +27,7 @@ export function ImageSlot({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover"
+          className={fit === "contain" ? "object-contain" : "object-cover"}
         />
       ) : (
         <div

@@ -1,22 +1,24 @@
-import { TIMEZONE } from "@/lib/leads";
+import { LOCALE, TIMEZONE } from "@/lib/timezone";
 
-const dateFormatter = new Intl.DateTimeFormat("uk-UA", {
+const dateFormatter = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIMEZONE,
   day: "2-digit",
   month: "short",
   year: "numeric",
 });
 
-const timeFormatter = new Intl.DateTimeFormat("uk-UA", {
+const timeFormatter = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIMEZONE,
   hour: "2-digit",
   minute: "2-digit",
+  hourCycle: "h23",
 });
 
 const csvFormatter = new Intl.DateTimeFormat("sv-SE", {
   timeZone: TIMEZONE,
   dateStyle: "short",
   timeStyle: "short",
+  hourCycle: "h23",
 });
 
 export function formatDate(value: string | Date): string {
@@ -33,6 +35,13 @@ export function formatDateTime(value: string | Date): string {
 
 export function formatForCsv(value: string | Date): string {
   return csvFormatter.format(new Date(value));
+}
+
+export function formatYear(value: string | Date = new Date()): string {
+  return new Intl.DateTimeFormat(LOCALE, {
+    timeZone: TIMEZONE,
+    year: "numeric",
+  }).format(new Date(value));
 }
 
 /** 0671112233 → 067 111 22 33 */

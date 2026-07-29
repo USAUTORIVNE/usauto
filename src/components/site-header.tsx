@@ -9,10 +9,10 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 bg-graphite/95 backdrop-blur-md">
       <div className="h-[3px] w-full bg-accent" aria-hidden="true" />
 
-      <div className="container-page flex h-20 items-center justify-between gap-6 border-b border-bone/10">
+      <div className="container-page flex h-[4.5rem] items-center justify-between gap-4 border-b border-bone/10 sm:gap-6">
         <a href="#top" className="flex shrink-0 items-center" aria-label={site.name}>
           {media.logo.src ? (
-            <span className="relative block h-10 w-[8.5rem] overflow-hidden bg-white px-2 sm:h-11 sm:w-40">
+            <span className="relative block h-9 w-[7.75rem] overflow-hidden bg-white px-2 sm:h-10 sm:w-36">
               <Image
                 src={media.logo.src}
                 alt={media.logo.alt}
@@ -23,21 +23,21 @@ export function SiteHeader() {
               />
             </span>
           ) : (
-            <span className="font-display text-2xl font-extrabold italic uppercase">
+            <span className="font-display text-xl font-extrabold italic uppercase sm:text-2xl">
               {site.name}
             </span>
           )}
         </a>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <SocialLinks className="hidden md:flex" tone="dark" />
           <a
             href={site.phoneHref}
-            className="hidden font-display text-xl font-bold italic tabular-nums text-bone/85 transition-colors duration-300 hover:text-accent-soft sm:block"
+            className="hidden font-display text-lg font-bold italic tabular-nums text-bone/85 transition-colors duration-300 hover:text-accent-soft sm:block"
           >
             {site.phone}
           </a>
-          <QuizButton mode="callback" variant="accent" className="px-6 py-3">
+          <QuizButton mode="callback" variant="accent" className="px-5 py-2.5 sm:px-6 sm:py-3">
             Зв’язатися
           </QuizButton>
         </div>
