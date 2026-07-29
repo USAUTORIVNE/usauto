@@ -73,27 +73,34 @@ export function formatLeadTelegramMessage(lead: LeadInput, id: number): string {
   return lines.join("\n");
 }
 
-export async function notifyTelegramLead(
-  lead: LeadInput,
-  id: number,
+function getTelegramChatIds(): string[] {
+  const raw = process.env.TELEGRAM_CHAT_ID?.trim();
+  if (!raw) return [];
+
+  return [
+    ...new Set(
+      raw
+        .split(/[,;\s]+/)
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  ];
+}
+
+async function sendTelegramMessage(
+  token: string,
+  chatId: string,
+  text: string,
 ): Promise<boolean> {
-  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
-  const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
-
-  if (!token || !chatId) return false;
-
-  const text = formatLeadTelegramMessage(lead, id);
-  const payload = {
-    chat_id: chatId,
-    text,
-    parse_mode: "HTML" as const,
-    disable_web_page_preview: true,
-  };
-
   let response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    }),
   });
 
   if (response.ok) return true;
@@ -115,6 +122,23 @@ export async function notifyTelegramLead(
     details = await response.text().catch(() => details);
   }
 
-  console.error("Telegram notify failed", response.status, details);
+  console.error("Telegram notify failed", chatId, response.status, details);
   return false;
+}
+
+export async function notifyTelegramLead(
+  lead: LeadInput,
+  id: number,
+): Promise<boolean> {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const chatIds = getTelegramChatIds();
+
+  if (!token || chatIds.length === 0) return false;
+
+  const text = formatLeadTelegramMessage(lead, id);
+  const results = await Promise.all(
+    chatIds.map((chatId) => sendTelegramMessage(token, chatId, text)),
+  );
+
+  return results.some(Boolean);
 }
