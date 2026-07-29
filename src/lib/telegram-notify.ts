@@ -29,7 +29,7 @@ function formatUtm(utm: Record<string, string>): string[] {
 export function formatLeadTelegramMessage(lead: LeadInput, id: number): string {
   const lines = [
     `<b>🆕 Нова заявка #${id}</b>`,
-    `<b>Тип:</b> ${lead.leadType === "callback" ? "Замовити дзвінок" : "Підбір авто (квіз)"}`,
+    `<b>Тип:</b> ${lead.leadType === "callback" ? "Замовити дзвінок" : "Підбір авто"}`,
     `<b>👤 Ім’я:</b> ${escapeHtml(lead.name)}`,
     `<b>📞 Телефон:</b> ${escapeHtml(lead.phone)}`,
   ];
