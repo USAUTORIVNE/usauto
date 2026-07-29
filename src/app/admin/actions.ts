@@ -1,7 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { signIn, signOut } from "@/lib/admin-auth";
+import { getIpFromHeaderValues, rateLimit } from "@/lib/rate-limit";
 import { zodFirstError } from "@/lib/validation/errors";
 import { adminPasswordSchema } from "@/lib/validation/schemas";
 
@@ -11,6 +13,22 @@ export async function login(
   _state: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
+  const headerList = await headers();
+  const ip = getIpFromHeaderValues(
+    headerList.get("x-forwarded-for"),
+    headerList.get("x-real-ip"),
+  );
+  const limited = rateLimit(`admin-login:${ip}`, {
+    limit: 5,
+    windowMs: 15 * 60_000,
+  });
+
+  if (!limited.ok) {
+    return {
+      error: `Забагато спроб. Спробуйте через ${limited.retryAfterSec} с.`,
+    };
+  }
+
   const parsed = adminPasswordSchema.safeParse(formData.get("password"));
 
   if (!parsed.success) {

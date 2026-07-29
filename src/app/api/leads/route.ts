@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { insertLead, listLeads } from "@/lib/leads";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
-import { isSameOriginRequest } from "@/lib/request-security";
+import {
+  isBodyTooLarge,
+  isSameOriginRequest,
+  safeEqualSecret,
+} from "@/lib/request-security";
 import { parseLeadInput } from "@/lib/validation/parse-lead";
 
 export async function POST(request: NextRequest) {
@@ -9,6 +13,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { ok: false, message: "Заборонений запит" },
       { status: 403 },
+    );
+  }
+
+  if (isBodyTooLarge(request)) {
+    return NextResponse.json(
+      { ok: false, message: "Занадто великий запит" },
+      { status: 413 },
     );
   }
 
@@ -63,9 +74,28 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const token = process.env.ADMIN_TOKEN;
+  const token = process.env.ADMIN_TOKEN?.trim();
 
-  if (!token || request.headers.get("x-admin-token") !== token) {
+  if (!token) {
+    return NextResponse.json({ ok: false }, { status: 404 });
+  }
+
+  const ip = getClientIp(request);
+  const limited = rateLimit(`leads-read:${ip}`, { limit: 30, windowMs: 60_000 });
+
+  if (!limited.ok) {
+    return NextResponse.json(
+      { ok: false, message: "Забагато спроб" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+
+  const provided = request.headers.get("x-admin-token") ?? "";
+
+  if (!provided || !safeEqualSecret(provided, token)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

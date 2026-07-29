@@ -1,6 +1,8 @@
 import Script from "next/script";
 
-const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const rawMetaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
+const metaPixelId =
+  rawMetaPixelId && /^\d{5,20}$/.test(rawMetaPixelId) ? rawMetaPixelId : null;
 
 export function MetaPixel() {
   if (!metaPixelId) return null;

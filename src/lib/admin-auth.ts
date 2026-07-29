@@ -1,20 +1,14 @@
 import "server-only";
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { cookies } from "next/headers";
+import { safeEqualSecret } from "@/lib/request-security";
 
 const COOKIE_NAME = "admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 12;
 
 function sessionToken(password: string): string {
   return createHmac("sha256", password).update("usautorv-admin").digest("hex");
-}
-
-function safeEqual(a: string, b: string): boolean {
-  const bufferA = Buffer.from(a);
-  const bufferB = Buffer.from(b);
-
-  return bufferA.length === bufferB.length && timingSafeEqual(bufferA, bufferB);
 }
 
 /** Пароль адмінки береться з ADMIN_PASSWORD у .env.local */
@@ -35,12 +29,12 @@ export async function isAdminAuthed(): Promise<boolean> {
   const cookie = (await cookies()).get(COOKIE_NAME)?.value;
   if (!cookie) return false;
 
-  return safeEqual(cookie, sessionToken(password));
+  return safeEqualSecret(cookie, sessionToken(password));
 }
 
 export async function signIn(candidate: string): Promise<boolean> {
   const password = getPassword();
-  if (!password || !safeEqual(candidate, password)) return false;
+  if (!password || !safeEqualSecret(candidate, password)) return false;
 
   (await cookies()).set(COOKIE_NAME, sessionToken(password), {
     httpOnly: true,
