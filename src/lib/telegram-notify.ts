@@ -82,22 +82,39 @@ export async function notifyTelegramLead(
 
   if (!token || !chatId) return false;
 
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const text = formatLeadTelegramMessage(lead, id);
+  const payload = {
+    chat_id: chatId,
+    text,
+    parse_mode: "HTML" as const,
+    disable_web_page_preview: true,
+  };
+
+  let response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: formatLeadTelegramMessage(lead, id),
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    }),
+    body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    const details = await response.text().catch(() => "");
-    console.error("Telegram notify failed", response.status, details);
-    return false;
+  if (response.ok) return true;
+
+  let details = await response.text().catch(() => "");
+
+  if (details.includes("can't parse entities")) {
+    response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: text.replace(/<[^>]+>/g, ""),
+        disable_web_page_preview: true,
+      }),
+    });
+
+    if (response.ok) return true;
+    details = await response.text().catch(() => details);
   }
 
-  return true;
+  console.error("Telegram notify failed", response.status, details);
+  return false;
 }
