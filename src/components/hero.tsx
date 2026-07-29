@@ -21,7 +21,11 @@ const route = [
 
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden">
+    <section
+      id="top"
+      aria-labelledby="hero-heading"
+      className="relative overflow-hidden"
+    >
       {/* акцентне світло позаду фото */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_55%_at_78%_18%,rgba(232,69,42,0.18),transparent_70%)]"
@@ -35,7 +39,10 @@ export function Hero() {
             <p className="label-caps text-accent-soft">Пригін під ключ</p>
           </div>
 
-          <h1 className="display-title mt-5 text-[2.875rem] leading-[0.92] sm:mt-6 sm:text-[4rem] lg:text-[5.125rem]">
+          <h1
+            id="hero-heading"
+            className="display-title mt-5 text-[2.875rem] leading-[0.92] sm:mt-6 sm:text-[4rem] lg:text-[5.125rem]"
+          >
             Ваше авто
             <br />
             з США —

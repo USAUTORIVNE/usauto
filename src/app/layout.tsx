@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Fira_Sans_Extra_Condensed, Inter_Tight } from "next/font/google";
-import { site } from "@/lib/site";
+import { buildRootMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const sans = Inter_Tight({
@@ -17,18 +17,7 @@ const display = Fira_Sans_Extra_Condensed({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: `${site.name} — авто зі США під ключ`,
-  description:
-    "Ваше авто з США — наша турбота. 6+ років досвіду, більше 1000 задоволених клієнтів. Комплексні послуги від покупки до реєстрації.",
-  openGraph: {
-    title: `${site.name} — ваше авто з США, наша турбота`,
-    description:
-      "Підбір, купівля, доставка та реєстрація авто зі США. Повний супровід під ключ.",
-    locale: "uk_UA",
-    type: "website",
-  },
-};
+export const metadata: Metadata = buildRootMetadata();
 
 export default function RootLayout({
   children,

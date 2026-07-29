@@ -16,12 +16,12 @@ export type MediaSlot = {
 export const media = {
   logo: {
     src: "/assets/us-auto-rivne-logo.png",
-    alt: "USAUTO",
+    alt: "USAUTO — пригін авто зі США",
     hint: "логотип",
   },
   hero: {
     src: "/assets/compressed_f931cf0b8e3ab9240765832327107acb.webp",
-    alt: "BMW 7 Series — авто з США",
+    alt: "Преміальне авто з США — послуги пригону під ключ від USAUTO",
     hint: "1200×1500 · JPG",
   },
 } satisfies Record<string, MediaSlot>;
