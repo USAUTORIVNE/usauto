@@ -2,24 +2,6 @@ import type { QuizIconKey } from "@/components/quiz/quiz-icons";
 
 export const UNDECIDED = "Поки не визначився (-лась)";
 
-export const POPULAR_BRANDS = [
-  "BMW",
-  "Mercedes-Benz",
-  "Audi",
-  "Toyota",
-  "Volkswagen",
-  "Ford",
-  "Honda",
-  "Hyundai",
-  "Kia",
-  "Lexus",
-  "Tesla",
-  "Jeep",
-  "Volvo",
-  "Porsche",
-  "Chevrolet",
-] as const;
-
 export const BUDGET_PRESETS = [
   "до 7 000 $",
   "7 000 – 12 000 $",
@@ -50,7 +32,6 @@ export const answerLabels: Record<string, string> = {
   fuel_type: "Паливо",
   year: "Рік",
   budget: "Бюджет",
-  brand: "Марка",
   car_wish: "Побажання",
 };
 
@@ -135,8 +116,8 @@ export const quizSteps: QuizStep[] = [
   },
   {
     id: "car_wish",
-    question: "Яка марка або побажання по авто?",
-    hint: "Обов’язково — оберіть марку або опишіть, яке авто шукаєте",
+    question: "Побажання по авто",
+    hint: "Обов’язково — опишіть, яке авто шукаєте",
     layout: "car_wish",
     options: [],
   },

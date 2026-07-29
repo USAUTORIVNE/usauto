@@ -1,7 +1,6 @@
 import { Hero } from "@/components/hero";
 import { JsonLd } from "@/components/json-ld";
 import { QuizProvider } from "@/components/quiz/quiz-provider";
-import { SeoFaq } from "@/components/seo-faq";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { buildHomeJsonLd, buildHomeMetadata } from "@/lib/seo";
@@ -16,7 +15,6 @@ export default function Home() {
         <SiteHeader />
         <main>
           <Hero />
-          <SeoFaq />
         </main>
         <SiteFooter />
       </div>

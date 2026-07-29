@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="USAUTO">
+  <rect width="32" height="32" fill="#0a1020"/>
+  <rect width="32" height="3" fill="#e8452a"/>
+  <path
+    fill="#f5f7fa"
+    d="M12.75 9.25V16.75c0 2.9 2.25 5.25 5.25 5.25s5.25-2.35 5.25-5.25V9.25H23v7.5c0 4.95-4.05 9-9 9s-9-4.05-9-9V9.25h3.75z"
+  />
+</svg>

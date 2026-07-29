@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fira_Sans_Extra_Condensed, Inter_Tight } from "next/font/google";
+import { MetaPixel } from "@/components/meta-pixel";
 import { buildRootMetadata } from "@/lib/seo";
 import "./globals.css";
 
@@ -29,7 +30,10 @@ export default function RootLayout({
       lang="uk"
       className={`${sans.variable} ${display.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <MetaPixel />
+        {children}
+      </body>
     </html>
   );
 }

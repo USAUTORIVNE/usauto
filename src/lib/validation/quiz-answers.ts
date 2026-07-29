@@ -5,7 +5,7 @@ import {
   UNDECIDED,
 } from "@/lib/quiz-config";
 
-const QUIZ_ANSWER_KEYS = ["body_type", "fuel_type", "year", "budget", "brand", "car_wish"] as const;
+const QUIZ_ANSWER_KEYS = ["body_type", "fuel_type", "year", "budget", "car_wish"] as const;
 
 const OPTION_VALUES = quizSteps.reduce<Record<string, Set<string>>>((acc, step) => {
   if (step.layout === "cards" || step.layout === "compact") {
@@ -14,7 +14,7 @@ const OPTION_VALUES = quizSteps.reduce<Record<string, Set<string>>>((acc, step) 
   return acc;
 }, {});
 
-const REQUIRED_QUIZ_KEYS = ["body_type", "fuel_type", "year", "budget", "brand", "car_wish"] as const;
+const REQUIRED_QUIZ_KEYS = ["body_type", "fuel_type", "year", "budget", "car_wish"] as const;
 
 const CUSTOM_BUDGET_PATTERN = /^([\d\s]+)\s*\$\s*\(свій\)$/;
 
@@ -85,13 +85,6 @@ export function validateQuizAnswers(
     if (stepId === "budget") {
       if (!values.every(isValidBudgetValue)) {
         errors.budget = "Некоректний бюджет";
-      }
-      continue;
-    }
-
-    if (stepId === "brand") {
-      if (values.some((value) => value.length < 2 || value.length > 80)) {
-        errors.brand = "Некоректна марка авто";
       }
       continue;
     }

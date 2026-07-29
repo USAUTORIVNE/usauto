@@ -1,12 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { QuizIcon } from "@/components/quiz/quiz-icons";
 import {
   BUDGET_PRESETS,
   MIN_BUDGET_USD,
-  POPULAR_BRANDS,
   quizSteps,
   UNDECIDED,
   type QuizStep,
@@ -60,6 +58,37 @@ function getOptionImageClass(stepId: string, value: string): string {
   return "h-[115%] w-auto max-w-[115%] object-contain";
 }
 
+function QuizOptionImage({
+  src,
+  alt,
+  stepId,
+  value,
+}: {
+  src: string;
+  alt: string;
+  stepId: string;
+  value: string;
+}) {
+  const isFuel = stepId === "fuel_type";
+
+  return (
+    <span
+      className={`mt-1 flex w-full items-center justify-center overflow-hidden ${
+        isFuel ? "h-20" : "h-28"
+      }`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className={getOptionImageClass(stepId, value)}
+      />
+    </span>
+  );
+}
+
 function parseBudgetInput(value: string): number | null {
   const digits = value.replace(/[^\d]/g, "");
   if (!digits) return null;
@@ -75,8 +104,7 @@ function canProceedStep(
   step: QuizStep,
   answers: Answers,
   budgetCustom: string,
-  carWishBrandCustom: string,
-  carWishNotes: string,
+  carWish: string,
 ): boolean {
   if (step.layout === "budget") {
     const preset = answers.budget ?? [];
@@ -86,11 +114,7 @@ function canProceedStep(
   }
 
   if (step.layout === "car_wish") {
-    const brands = answers.brand ?? [];
-    const hasBrand =
-      brands.length > 0 || carWishBrandCustom.trim().length >= 2;
-    const hasNotes = carWishNotes.trim().length >= 5;
-    return hasBrand && hasNotes;
+    return carWish.trim().length >= 5;
   }
 
   return (answers[step.id] ?? []).length > 0;
@@ -100,8 +124,7 @@ function validateStepInput(
   step: QuizStep,
   answers: Answers,
   budgetCustom: string,
-  carWishBrandCustom: string,
-  carWishNotes: string,
+  carWish: string,
 ): StepErrors {
   if (step.layout === "budget") {
     const preset = answers.budget ?? [];
@@ -118,14 +141,7 @@ function validateStepInput(
   }
 
   if (step.layout === "car_wish") {
-    const brands = answers.brand ?? [];
-    const hasBrand =
-      brands.length > 0 || carWishBrandCustom.trim().length >= 2;
-
-    if (!hasBrand) {
-      return { car_wish: "Оберіть марку зі списку або вкажіть свою" };
-    }
-    if (carWishNotes.trim().length < 5) {
+    if (carWish.trim().length < 5) {
       return { car_wish: "Опишіть побажання — марку, модель, комплектацію…" };
     }
     return {};
@@ -138,8 +154,7 @@ function syncStepAnswers(
   step: QuizStep,
   answers: Answers,
   budgetCustom: string,
-  carWishBrandCustom: string,
-  carWishNotes: string,
+  carWish: string,
 ): Answers {
   if (step.layout === "budget") {
     const preset = answers.budget ?? [];
@@ -155,18 +170,9 @@ function syncStepAnswers(
   }
 
   if (step.layout === "car_wish") {
-    const brands = answers.brand ?? [];
-    const customBrand = carWishBrandCustom.trim();
-    const notes = carWishNotes.trim();
-    const brandValues = [...brands];
-    if (customBrand && !brandValues.includes(customBrand)) {
-      brandValues.push(customBrand);
-    }
-
     return {
       ...answers,
-      brand: brandValues,
-      car_wish: [notes],
+      car_wish: [carWish.trim()],
     };
   }
 
@@ -187,8 +193,7 @@ export function QuizModal({
   const [phone, setPhone] = useState("");
   const [comment, setComment] = useState("");
   const [budgetCustom, setBudgetCustom] = useState("");
-  const [carWishBrandCustom, setCarWishBrandCustom] = useState("");
-  const [carWishNotes, setCarWishNotes] = useState("");
+  const [carWish, setCarWish] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [stepErrors, setStepErrors] = useState<StepErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -211,33 +216,17 @@ export function QuizModal({
   const step: QuizStep | undefined = quizSteps[stepIndex];
   const isFormStage = !step;
   const selected = step ? (answers[step.id] ?? []) : [];
-  const selectedBrands = answers.brand ?? [];
   const canProceed =
-    step &&
-    canProceedStep(step, answers, budgetCustom, carWishBrandCustom, carWishNotes);
+    step && canProceedStep(step, answers, budgetCustom, carWish);
 
   function goNextStep() {
     if (!step) return;
 
-    const nextStepErrors = validateStepInput(
-      step,
-      answers,
-      budgetCustom,
-      carWishBrandCustom,
-      carWishNotes,
-    );
+    const nextStepErrors = validateStepInput(step, answers, budgetCustom, carWish);
     setStepErrors(nextStepErrors);
     if (Object.keys(nextStepErrors).length > 0) return;
 
-    setAnswers((prev) =>
-      syncStepAnswers(
-        step,
-        prev,
-        budgetCustom,
-        carWishBrandCustom,
-        carWishNotes,
-      ),
-    );
+    setAnswers((prev) => syncStepAnswers(step, prev, budgetCustom, carWish));
     setStepErrors({});
     setStepIndex((prev) => prev + 1);
   }
@@ -270,13 +259,11 @@ export function QuizModal({
       if (
         parsed.errors.answers ||
         parsed.errors.budget ||
-        parsed.errors.brand ||
         parsed.errors.car_wish
       ) {
         nextErrors.general =
           parsed.errors.answers ??
           parsed.errors.budget ??
-          parsed.errors.brand ??
           parsed.errors.car_wish ??
           "Перевірте відповіді квізу";
       }
@@ -458,22 +445,12 @@ export function QuizModal({
             />
           ) : step.layout === "car_wish" ? (
             <CarWishStep
-              selectedBrands={selectedBrands}
-              customBrand={carWishBrandCustom}
-              notes={carWishNotes}
+              value={carWish}
               error={stepErrors.car_wish}
-              onToggleBrand={(brand) => {
-                setAnswers((prev) => {
-                  const current = prev.brand ?? [];
-                  const next = current.includes(brand)
-                    ? current.filter((item) => item !== brand)
-                    : [...current, brand];
-                  return { ...prev, brand: next };
-                });
+              onChange={(value) => {
+                setCarWish(value);
                 setStepErrors({});
               }}
-              onCustomBrandChange={setCarWishBrandCustom}
-              onNotesChange={setCarWishNotes}
             />
           ) : (
             <div>
@@ -526,20 +503,19 @@ export function QuizModal({
                       </span>
 
                       {step.layout === "cards" ? (
-                        <span
-                          className={`mt-1 flex w-full items-center justify-center overflow-hidden ${
-                            step.id === "fuel_type" ? "h-20" : "h-28"
-                          }`}
-                        >
-                          {option.image ? (
-                            <Image
-                              src={option.image}
-                              alt={option.value}
-                              width={240}
-                              height={160}
-                              className={getOptionImageClass(step.id, option.value)}
-                            />
-                          ) : option.icon ? (
+                        option.image ? (
+                          <QuizOptionImage
+                            src={option.image}
+                            alt={option.value}
+                            stepId={step.id}
+                            value={option.value}
+                          />
+                        ) : option.icon ? (
+                          <span
+                            className={`mt-1 flex w-full items-center justify-center overflow-hidden ${
+                              step.id === "fuel_type" ? "h-20" : "h-28"
+                            }`}
+                          >
                             <span
                               className={`h-full w-full transition-colors duration-200 ${
                                 isSelected ? "text-white" : "text-ink/55"
@@ -547,8 +523,8 @@ export function QuizModal({
                             >
                               <QuizIcon name={option.icon} />
                             </span>
-                          ) : null}
-                        </span>
+                          </span>
+                        ) : null
                       ) : null}
                     </button>
                   );
@@ -662,73 +638,30 @@ function BudgetStep({
 }
 
 function CarWishStep({
-  selectedBrands,
-  customBrand,
-  notes,
+  value,
   error,
-  onToggleBrand,
-  onCustomBrandChange,
-  onNotesChange,
+  onChange,
 }: {
-  selectedBrands: string[];
-  customBrand: string;
-  notes: string;
+  value: string;
   error?: string;
-  onToggleBrand: (brand: string) => void;
-  onCustomBrandChange: (value: string) => void;
-  onNotesChange: (value: string) => void;
+  onChange: (value: string) => void;
 }) {
   return (
     <div>
       <h3 className="font-display text-3xl leading-tight font-extrabold italic uppercase sm:text-4xl">
-        Яка марка або побажання по авто?
+        Побажання по авто
       </h3>
       <p className="mt-3 text-sm text-ink/60">
-        Обов’язково — оберіть марку зі списку або вкажіть свою, і коротко опишіть
-        побажання.
+        Опишіть, яке авто шукаєте — марку, модель, комплектацію, пробіг, колір тощо.
       </p>
 
-      <p className="label-caps mt-7 text-muted">Популярні марки</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {POPULAR_BRANDS.map((brand) => {
-          const isSelected = selectedBrands.includes(brand);
-
-          return (
-            <button
-              key={brand}
-              type="button"
-              onClick={() => onToggleBrand(brand)}
-              className={`label-caps border-2 px-3 py-2 transition-colors duration-200 ${
-                isSelected
-                  ? "border-accent bg-accent text-white"
-                  : "border-ink-line bg-white/70 hover:border-accent/50"
-              }`}
-            >
-              {brand}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-6">
-        <Field label="Інша марка / модель">
-          <input
-            type="text"
-            value={customBrand}
-            onChange={(event) => onCustomBrandChange(event.target.value)}
-            placeholder="Наприклад: Mazda CX-5"
-            className="w-full border-b border-ink/25 bg-transparent py-2.5 outline-none transition-colors duration-300 placeholder:text-ink/30 focus:border-accent"
-          />
-        </Field>
-      </div>
-
-      <div className="mt-6">
+      <div className="mt-7">
         <Field label="Побажання по авто *">
           <textarea
-            rows={4}
-            value={notes}
-            onChange={(event) => onNotesChange(event.target.value)}
-            placeholder="Марка, модель, комплектація, пробіг, колір, must-have опції…"
+            rows={5}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="Наприклад: BMW X5, 2020+, бензин, повний привід, світла шкіряна салон…"
             className="w-full resize-none border-b border-ink/25 bg-transparent py-2.5 outline-none transition-colors duration-300 placeholder:text-ink/30 focus:border-accent"
           />
         </Field>
