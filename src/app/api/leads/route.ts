@@ -6,6 +6,7 @@ import {
   isSameOriginRequest,
   safeEqualSecret,
 } from "@/lib/request-security";
+import { notifyTelegramLead } from "@/lib/telegram-notify";
 import { parseLeadInput } from "@/lib/validation/parse-lead";
 
 export async function POST(request: NextRequest) {
@@ -61,6 +62,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const id = await insertLead(parsed.data);
+
+    notifyTelegramLead(parsed.data, id).catch((error) => {
+      console.error("Telegram notify error", error);
+    });
 
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (error) {
