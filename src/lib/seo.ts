@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { reviews, reviewsSource } from "@/lib/reviews";
 import { site } from "@/lib/site";
 
 export function getSiteUrl(): string {
@@ -137,7 +138,7 @@ export function buildHomeJsonLd() {
           "@type": "Country",
           name: "Україна",
         },
-        sameAs: site.socials.map((item) => item.href),
+        sameAs: [...site.socials.map((item) => item.href), reviewsSource.href],
         priceRange: "$$",
         knowsAbout: [
           "пригін авто з США",
@@ -146,6 +147,30 @@ export function buildHomeJsonLd() {
           "розмитнення авто",
           "доставка авто з США",
         ],
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: reviewsSource.rating,
+          reviewCount: reviewsSource.total,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        review: reviews.map((item) => ({
+          "@type": "Review",
+          url: item.href,
+          datePublished: `${item.date}-01`,
+          inLanguage: "uk-UA",
+          author: {
+            "@type": "Person",
+            name: item.author,
+          },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: item.rating,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          reviewBody: item.text,
+        })),
       },
     ],
   };
